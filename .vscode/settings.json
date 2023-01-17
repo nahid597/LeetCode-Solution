@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.ts": "typescript",
+        "vector": "cpp",
+        "__locale": "cpp",
+        "functional": "cpp",
+        "map": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "ios": "cpp"
+    }
+}
