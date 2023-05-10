@@ -1,89 +1,68 @@
 #include<iostream>
 #include<queue>
+#include<stack>
 #include<vector>
 
 using namespace std;
 
-
-// bool dfs(int s, int par, vector<int> adj[], vector<bool>visited) {
-
-//     visited[s] = true;
-//     bool res = false;
-
-
-//     for (int i = 0; i < adj[s].size(); i++)
-//     {
-//         int t = adj[s][i];
-
-//         if (!visited[t])
-//         {
-//             return dfs(t, s, adj, visited);
-//         } else {
-//             if (par != t)
-//             {
-//                 return true;
-//             } 
-//         }
-        
-//     }
-
-//     return res;
-// }
-
-// bool isCycle(vector<int> adj[], int v) {
-
-//     bool res;
-//    // vector<bool>visited(100, false);
-
-//     for (int i = 0; i < v; i++)
-//     {
-//         vector<bool>visited(100, false);
-
-//         res = dfs(i, -1, adj, visited);
-
-//         if(res) {
-//             cout << "nahid" << endl;
-//             return true;
-//         }
-//     }
-    
-
-//     return false;
-// }
-
-
-
-
- bool helperDfs(int s, vector<int>adj[], vector<bool>&visited,vector<bool> &resStack, vector<int>&travesNodes) {
-
-    if (!visited[s])
+ bool cycleUtil(vector<int> adj[], int s, vector<int>&visited) {
+    if (visited[s] == 1)
     {
-        visited[s] = true;
-        resStack[s] = true;
-        
-        if (travesNodes[s] == -1)
+        return true;
+    }
+
+    if (visited[s] == 2)
+    {
+        return false;
+    }
+
+    visited[s] = 1;
+
+    for (int i = 0; i < adj[s].size(); i++)
+    {
+        if (cycleUtil(adj, adj[s][i], visited))
         {
-           travesNodes[s] = 1;
-        }
-
-        for (int i = 0; i < adj[s].size(); i++)
-        {
-            int temp = adj[s][i];
-
-
-            if(!visited[temp] && helperDfs(temp,adj,visited,resStack,travesNodes)) {
             return true;
-            } else  if (resStack[temp])
-                {
-                    return true;
-                }
-
         }
     }
     
-    resStack[s] = false;
+    visited[s] = 2;
+    return false;
+ }
+
+ bool detectCycle(vector<int>adj[], int n) {
+    vector<int>visited(n , 0);
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+        {
+            if (cycleUtil(adj, i, visited))
+            {
+                return true;
+            }
+            
+        }
+        
+    }
+
     return false;
     
+ }
+
+ void helperDfs(int s, vector<int>adj[], vector<bool>&visited,stack<int>&myStack) {
+    visited[s]= true;
+
+    for (int i = 0; i < adj[s].size(); i++)
+    {
+        if (!visited[adj[s][i]])
+        {
+            helperDfs(adj[s][i], adj, visited, myStack);
+        }
+        
+    }
+
+    myStack.push(s);
  }
 
   vector<int> findOrder(int numCourses, vector<vector<int> >& prerequisites) {
@@ -93,52 +72,36 @@ using namespace std;
     int u, v;
     bool res = false;
     int cnt = 0;
-    vector<int>answer;
+    
 
     for (int  i = 0; i < prerequisites.size(); i++)
     {
-        u = prerequisites[i][0];
-        v = prerequisites[i][1];
+        u = prerequisites[i][1];
+        v = prerequisites[i][0];
         adj[u].push_back(v);
     }
 
-     vector<bool>visited(numCourses, false);
-     vector<bool> resStack(numCourses,false);
-     vector<int>travesNodes(numCourses, -1);
-    
+     vector<int>answer;
 
-    for (int  i = 0; i < numCourses; i++)
-    {
-       
-       if(!visited[i]) {
-            res = helperDfs(i, adj, visited,resStack, travesNodes);
-            if (res)
-            {
-                cout << "circle found" << endl;
-                break;
-            }
-       }
-        
-    }
-
-    if (res) {
+     if (detectCycle(adj, numCourses))
+     {
         return answer;
-    } else {
-        for (int i = 0; i < travesNodes.size(); i++)
-        {
-            if(travesNodes[i] == 1) {
-                cnt++;
-            }
-        }
+     }
+     
+     vector<bool>visited(numCourses, false);
+     stack<int>myStack;
+
+    for (int  i = 0; i < numCourses ; i++)
+    {
+       if(!visited[i]) {
+            helperDfs(i, adj, visited,myStack);
+       }  
     }
 
-    if (cnt == numCourses)
+    while (!myStack.empty())
     {
-        for (int i = 0; i < numCourses; i++)
-        {
-            answer.push_back(i);
-        }
-        
+        answer.push_back(myStack.top());
+        myStack.pop();
     }
     
     return answer;
